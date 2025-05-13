@@ -843,3 +843,207 @@ tr:hover {
     font-size: 2rem;
   }
 }
+
+.expense-icon-item.create-custom {
+  background-color: #f0f8ff;
+  border: 1px dashed #4285F4;
+}
+
+.expense-icon-item.create-custom:hover {
+  background-color: #e6f3ff;
+  transform: translateY(-2px);
+}
+
+.custom-expense-form {
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.custom-expense-form h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 18px;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  font-size: 14px;
+  color: #555;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: var(--secondary-font);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #4285F4;
+  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+}
+
+.custom-form-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.cancel-custom {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.cancel-custom:hover {
+  background-color: #e8e8e8;
+}
+
+.add-custom {
+  flex: 2;
+  padding: 10px;
+  border: none;
+  background-color: #4285F4;
+  color: white;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.add-custom:hover {
+  background-color: #3b78e7;
+}
+
+/* Inline editing in data view */
+.editable-cell {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background-color: transparent;
+  font-family: var(--secondary-font);
+  transition: all 0.2s ease;
+}
+
+.editable-cell:hover {
+  border-color: #ddd;
+  background-color: #fff;
+}
+
+.editable-cell:focus {
+  outline: none;
+  border-color: #4285F4;
+  background-color: #fff;
+  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+}
+
+.icon-select {
+  width: 60px;
+  text-align: center;
+}
+
+.amount-input-container {
+  display: flex;
+  align-items: center;
+}
+
+.amount-input-container span {
+  margin-right: 4px;
+  color: #555;
+}
+
+.amount-input {
+  width: calc(100% - 12px);
+}
+
+.data-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.add-data-button {
+  padding: 10px 15px;
+  background-color: #4285F4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.add-data-button:hover {
+  background-color: #3b78e7;
+}
+
+.add-expense-form {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.add-expense-form h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 20px;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.save-button {
+  flex: 2;
+  padding: 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.save-button:hover {
+  background-color: #43a047;
+}
+
+.cancel-button {
+  flex: 1;
+  padding: 10px;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.cancel-button:hover {
+  background-color: #e8e8e8;
+}

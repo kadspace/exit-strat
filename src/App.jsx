@@ -7,20 +7,27 @@ const ItemsContext = createContext()
 
 // Icons for expense categories
 const expenseIcons = [
-  { id: 'car', label: 'Car Insurance', icon: '🚗', defaultAmount: 200, color: '#FF6B6B' },
-  { id: 'groceries', label: 'Groceries', icon: '🛒', defaultAmount: 300, color: '#4ECDC4' },
-  { id: 'utilities', label: 'Utilities', icon: '💡', defaultAmount: 150, color: '#FFD166' },
-  { id: 'entertainment', label: 'Entertainment', icon: '🎬', defaultAmount: 80, color: '#6B5B95' },
-  { id: 'rent', label: 'Rent', icon: '🏠', defaultAmount: 1200, color: '#88D8B0' },
-  { id: 'dining', label: 'Dining', icon: '🍽️', defaultAmount: 100, color: '#FF8C94' },
-  { id: 'health', label: 'Healthcare', icon: '⚕️', defaultAmount: 150, color: '#7AC7D3' },
-  { id: 'shopping', label: 'Shopping', icon: '🛍️', defaultAmount: 120, color: '#F8A055' }
+  { id: 'car', label: 'Car Insurance', icon: '🚗', defaultAmount: 200, color: '#FF6B6B', category: 'Transportation' },
+  { id: 'groceries', label: 'Groceries', icon: '🛒', defaultAmount: 300, color: '#4ECDC4', category: 'Food' },
+  { id: 'utilities', label: 'Utilities', icon: '💡', defaultAmount: 150, color: '#FFD166', category: 'Housing' },
+  { id: 'entertainment', label: 'Entertainment', icon: '🎬', defaultAmount: 80, color: '#6B5B95', category: 'Leisure' },
+  { id: 'rent', label: 'Rent', icon: '🏠', defaultAmount: 1200, color: '#88D8B0', category: 'Housing' },
+  { id: 'dining', label: 'Dining', icon: '🍽️', defaultAmount: 100, color: '#FF8C94', category: 'Food' },
+  { id: 'health', label: 'Healthcare', icon: '⚕️', defaultAmount: 150, color: '#7AC7D3', category: 'Health' },
+  { id: 'shopping', label: 'Shopping', icon: '🛍️', defaultAmount: 120, color: '#F8A055', category: 'Personal' }
 ]
 
 // ExpenseModal component
 function ExpenseModal({ showOptions, closeMenu, items, addExpense }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedIcon, setSelectedIcon] = useState(null)
+  const [customMode, setCustomMode] = useState(false)
+  const [customExpense, setCustomExpense] = useState({
+    name: '',
+    icon: '💰',
+    defaultAmount: 0,
+    category: ''
+  })
   const menuRef = useRef(null)
   const searchInputRef = useRef(null)
   
@@ -40,12 +47,50 @@ function ExpenseModal({ showOptions, closeMenu, items, addExpense }) {
   
   const selectIcon = (icon) => {
     setSelectedIcon(icon)
+    setCustomMode(false)
   }
   
   const handleAddExpense = () => {
-    if (!selectedIcon) return
-    addExpense(selectedIcon)
+    if (customMode) {
+      if (!customExpense.name || customExpense.defaultAmount <= 0) return
+      
+      // Create a random color for custom expense
+      const randomColor = `#${Math.floor(Math.random()*16777215).toString(16)}`;
+      
+      const finalCustomExpense = {
+        id: `custom-${Date.now()}`,
+        label: customExpense.name,
+        icon: customExpense.icon,
+        defaultAmount: Number(customExpense.defaultAmount),
+        color: randomColor,
+        category: customExpense.category || 'Uncategorized'
+      }
+      
+      addExpense(finalCustomExpense)
+      setCustomMode(false)
+      setCustomExpense({
+        name: '',
+        icon: '💰',
+        defaultAmount: 0,
+        category: ''
+      })
+    } else if (selectedIcon) {
+      addExpense(selectedIcon)
+      setSelectedIcon(null)
+    }
+  }
+  
+  const switchToCustomMode = () => {
+    setCustomMode(true)
     setSelectedIcon(null)
+  }
+  
+  const handleCustomChange = (e) => {
+    const { name, value } = e.target
+    setCustomExpense({
+      ...customExpense,
+      [name]: value
+    })
   }
   
   return (
@@ -56,28 +101,131 @@ function ExpenseModal({ showOptions, closeMenu, items, addExpense }) {
         </div>
         
         <div className="expense-options">
-          <div className="expense-search">
-            <input
-              ref={searchInputRef}
-              type="text"
-              placeholder="Search expenses..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          
-          <div className="expense-icons-grid">
-            {filteredIcons.map(icon => (
-              <div 
-                key={icon.id} 
-                className={`expense-icon-item ${selectedIcon && selectedIcon.id === icon.id ? 'selected' : ''}`}
-                onClick={() => selectIcon(icon)}
-              >
-                <div className="expense-icon">{icon.icon}</div>
-                <div className="expense-label">{icon.label}</div>
+          {!customMode ? (
+            <>
+              <div className="expense-search">
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  placeholder="Search expenses..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
-            ))}
-          </div>
+              
+              <div className="expense-icons-grid">
+                {filteredIcons.map(icon => (
+                  <div 
+                    key={icon.id} 
+                    className={`expense-icon-item ${selectedIcon && selectedIcon.id === icon.id ? 'selected' : ''}`}
+                    onClick={() => selectIcon(icon)}
+                  >
+                    <div className="expense-icon">{icon.icon}</div>
+                    <div className="expense-label">{icon.label}</div>
+                  </div>
+                ))}
+                
+                <div 
+                  className="expense-icon-item create-custom"
+                  onClick={switchToCustomMode}
+                >
+                  <div className="expense-icon">+</div>
+                  <div className="expense-label">Create Custom</div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="custom-expense-form">
+              <h2>Create Custom Expense</h2>
+              <div className="form-group">
+                <label>Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={customExpense.name}
+                  onChange={handleCustomChange}
+                  placeholder="Expense name"
+                  autoFocus
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>Icon</label>
+                <select 
+                  name="icon" 
+                  value={customExpense.icon}
+                  onChange={handleCustomChange}
+                >
+                  <option value="💰">💰 Money</option>
+                  <option value="🛒">🛒 Shopping</option>
+                  <option value="🍔">🍔 Food</option>
+                  <option value="🏠">🏠 Housing</option>
+                  <option value="🚗">🚗 Transportation</option>
+                  <option value="💼">💼 Business</option>
+                  <option value="🏥">🏥 Healthcare</option>
+                  <option value="✈️">✈️ Travel</option>
+                  <option value="📚">📚 Education</option>
+                  <option value="🎮">🎮 Entertainment</option>
+                  <option value="💻">💻 Technology</option>
+                </select>
+              </div>
+              
+              <div className="form-group">
+                <label>Amount</label>
+                <div className="expense-input">
+                  <span>$</span>
+                  <input 
+                    type="number" 
+                    name="defaultAmount"
+                    value={customExpense.defaultAmount} 
+                    onChange={handleCustomChange}
+                  />
+                </div>
+              </div>
+              
+              <div className="form-group">
+                <label>Category</label>
+                <input
+                  type="text"
+                  name="category"
+                  value={customExpense.category}
+                  onChange={handleCustomChange}
+                  placeholder="Category"
+                  list="category-suggestions"
+                />
+                <datalist id="category-suggestions">
+                  <option value="Food" />
+                  <option value="Housing" />
+                  <option value="Transportation" />
+                  <option value="Utilities" />
+                  <option value="Personal" />
+                  <option value="Health" />
+                  <option value="Leisure" />
+                  <option value="Education" />
+                  <option value="Debt" />
+                  <option value="Savings" />
+                  <option value="Other" />
+                </datalist>
+              </div>
+              
+              <div className="custom-form-buttons">
+                <button 
+                  type="button" 
+                  className="cancel-custom"
+                  onClick={() => setCustomMode(false)}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="button" 
+                  className="add-custom"
+                  onClick={handleAddExpense}
+                >
+                  Add Custom Expense
+                </button>
+              </div>
+            </div>
+          )}
         </div>
         
         <div className="expense-preview">
@@ -98,7 +246,7 @@ function ExpenseModal({ showOptions, closeMenu, items, addExpense }) {
             <div className="no-items">No expenses added yet</div>
           )}
           
-          {selectedIcon && (
+          {selectedIcon && !customMode && (
             <div className="selected-expense">
               <h3>Add New Expense</h3>
               <div className="selected-expense-details">
@@ -181,7 +329,8 @@ function VisualizationPage() {
       icon: selectedIcon.icon,
       amount: Number(selectedIcon.defaultAmount),
       date: new Date().toLocaleString(),
-      color: selectedIcon.color
+      color: selectedIcon.color,
+      category: selectedIcon.category || 'Uncategorized'
     }
     setItems([...items, newItem])
   }
@@ -344,10 +493,162 @@ function VisualizationPage() {
 
 // Data view component with CSV-style display
 function DataView() {
-  const { items } = useContext(ItemsContext)
+  const { items, setItems } = useContext(ItemsContext)
+  const [showAddForm, setShowAddForm] = useState(false)
+  const [newItemData, setNewItemData] = useState({
+    name: '',
+    icon: '💰',
+    amount: '',
+    date: new Date().toLocaleString(),
+    category: 'Uncategorized',
+    color: '#888888'
+  })
+  
+  // Function to update an item's value when it's edited
+  const handleInlineEdit = (id, field, value) => {
+    const updatedItems = items.map(item => {
+      if (item.id === id) {
+        const updatedItem = { ...item, [field]: field === 'amount' ? Number(value) : value };
+        return updatedItem;
+      }
+      return item;
+    });
+    setItems(updatedItems);
+  };
+
+  const handleDeleteItem = (id) => {
+    if (window.confirm("Are you sure you want to delete this expense?")) {
+      setItems(items.filter(item => item.id !== id))
+    }
+  }
+
+  const handleNewItemChange = (event) => {
+    const { name, value } = event.target
+    setNewItemData({ ...newItemData, [name]: value })
+  }
+
+  const handleAddItemSubmit = (event) => {
+    event.preventDefault();
+    
+    if (!newItemData.name || !newItemData.amount) {
+      alert("Please enter at least a name and amount.");
+      return;
+    }
+
+    const newItem = {
+      id: Date.now(),
+      name: newItemData.name,
+      icon: newItemData.icon,
+      amount: Number(newItemData.amount),
+      date: newItemData.date,
+      category: newItemData.category,
+      color: newItemData.color
+    }
+
+    setItems([...items, newItem]);
+    setNewItemData({
+      name: '',
+      icon: '💰',
+      amount: '',
+      date: new Date().toLocaleString(),
+      category: 'Uncategorized',
+      color: '#888888'
+    });
+    setShowAddForm(false);
+  }
+
+  const toggleAddForm = () => {
+    setShowAddForm(!showAddForm);
+  }
 
   return (
     <div className="data-view">
+      <div className="data-header">
+        <h1>Data View</h1>
+        <button className="add-data-button" onClick={toggleAddForm}>
+          {showAddForm ? 'Cancel' : 'Add New Expense'}
+        </button>
+      </div>
+
+      {showAddForm && (
+        <div className="add-expense-form">
+          <h2>Add New Expense</h2>
+          <form onSubmit={handleAddItemSubmit}>
+            <div className="form-group">
+              <label htmlFor="name">Name:</label>
+              <input
+                type="text"
+                name="name"
+                id="name"
+                value={newItemData.name}
+                onChange={handleNewItemChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="icon">Icon:</label>
+              <select
+                name="icon"
+                id="icon"
+                value={newItemData.icon}
+                onChange={handleNewItemChange}
+              >
+                {expenseIcons.map(icon => (
+                  <option key={icon.id} value={icon.icon}>
+                    {icon.icon} {icon.label}
+                  </option>
+                ))}
+                <option value="💰">💰 General</option>
+                <option value="🛒">🛒 Shopping</option>
+                <option value="🍔">🍔 Food</option>
+                <option value="🏠">🏠 Housing</option>
+                <option value="🚗">🚗 Transportation</option>
+                <option value="💼">💼 Business</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="amount">Amount ($):</label>
+              <input
+                type="number"
+                name="amount"
+                id="amount"
+                value={newItemData.amount}
+                onChange={handleNewItemChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="category">Category:</label>
+              <input
+                type="text"
+                name="category"
+                id="category"
+                value={newItemData.category}
+                onChange={handleNewItemChange}
+                list="category-suggestions"
+              />
+              <datalist id="category-suggestions">
+                <option value="Food" />
+                <option value="Housing" />
+                <option value="Transportation" />
+                <option value="Utilities" />
+                <option value="Personal" />
+                <option value="Health" />
+                <option value="Leisure" />
+                <option value="Education" />
+                <option value="Debt" />
+                <option value="Savings" />
+                <option value="Other" />
+              </datalist>
+            </div>
+            <div className="form-buttons">
+              <button type="submit" className="save-button">Add Expense</button>
+              <button type="button" className="cancel-button" onClick={toggleAddForm}>Cancel</button>
+            </div>
+          </form>
+        </div>
+      )}
+
       <div className="csv-table">
         <table>
           <thead>
@@ -355,16 +656,70 @@ function DataView() {
               <th>Name</th>
               <th>Icon</th>
               <th>Amount</th>
+              <th>Category</th>
               <th>Date</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {items.map(item => (
               <tr key={item.id}>
-                <td>{item.name}</td>
-                <td>{item.icon || '-'}</td>
-                <td>{item.amount ? `$${item.amount}` : '-'}</td>
+                <td>
+                  <input
+                    type="text"
+                    value={item.name}
+                    onChange={(e) => handleInlineEdit(item.id, 'name', e.target.value)}
+                    className="editable-cell"
+                  />
+                </td>
+                <td>
+                  <select
+                    value={item.icon}
+                    onChange={(e) => handleInlineEdit(item.id, 'icon', e.target.value)}
+                    className="editable-cell icon-select"
+                  >
+                    {expenseIcons.map(icon => (
+                      <option key={icon.id} value={icon.icon}>
+                        {icon.icon}
+                      </option>
+                    ))}
+                    <option value="💰">💰</option>
+                    <option value="🛒">🛒</option>
+                    <option value="🍔">🍔</option>
+                    <option value="🏠">🏠</option>
+                    <option value="🚗">🚗</option>
+                    <option value="💼">💼</option>
+                    <option value="🏥">🏥</option>
+                    <option value="✈️">✈️</option>
+                    <option value="📚">📚</option>
+                    <option value="🎮">🎮</option>
+                    <option value="💻">💻</option>
+                  </select>
+                </td>
+                <td>
+                  <div className="amount-input-container">
+                    <span>$</span>
+                    <input
+                      type="number"
+                      value={item.amount}
+                      onChange={(e) => handleInlineEdit(item.id, 'amount', e.target.value)}
+                      className="editable-cell amount-input"
+                    />
+                  </div>
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    value={item.category || 'Uncategorized'}
+                    onChange={(e) => handleInlineEdit(item.id, 'category', e.target.value)}
+                    className="editable-cell"
+                    list="category-suggestions"
+                  />
+                </td>
                 <td>{item.date}</td>
+                <td className="action-buttons">
+                  <button type="button" onClick={() => handleDeleteItem(item.id)}>Delete</button>
+                </td>
               </tr>
             ))}
           </tbody>
